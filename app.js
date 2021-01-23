@@ -13,7 +13,19 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(logger('dev'));
+// log setup
+if (process.env.NODE_ENV === 'test') {
+  var fs = require('fs')
+  var dir = './log';
+  if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+  }
+  var accessLogStream = fs.createWriteStream(__dirname + '/log/' + 'test.log');
+  app.use(logger('tiny', { stream: accessLogStream }));
+} else {
+  app.use(logger('tiny'));
+}
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
